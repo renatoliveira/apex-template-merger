@@ -18,7 +18,7 @@ String myResult = MergeFieldUtility.replaceMergeFieldsWithValues (
 
 ```
 String myTemplate = 'Hey {{ FirstName }}, your email address is {{ Email }} and account name is {{ Account.Name }}';
-Contact myContact = [SELECT Id, Email, Name FROM Contact WHERE Id IN ('0032800000YWeRQ')];
+Contact myContact = [SELECT Id, Email, Name, Account.Name FROM Contact WHERE Id IN ('0032800000YWeRQ')];
 
 String myResult = MergeFieldUtility.replaceMergeFieldsWithValues (
   myTemplate, // The string to merge
