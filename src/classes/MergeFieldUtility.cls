@@ -39,10 +39,10 @@ public class MergeFieldUtility {
 		// Get the object name based on the recordId
 		String objectName;
 		if (recordId != null) {
-			recordId = ((Id) recordId).getSObjectType().getDescribe().getName();
+			objectName = ((Id) recordId).getSObjectType().getDescribe().getName();
 		}
 		else {
-			recordId = ((Id) record.Id).getSObjectType().getDescribe().getName();
+			objectName = ((Id) record.Id).getSObjectType().getDescribe().getName();
 		}
 
 		// The pattern to match one. This accepts merge fields using {{ field_name }} syntax
