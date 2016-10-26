@@ -6,14 +6,44 @@
 public class MergeFieldUtility {
 
 	/**
+	 * Passing the record directly with fields. No need for Id.
+	 * Useful if we already have the values, or if we want to avoid SOQL
+	 * while doing this operation over multiple records.
+	 * 
+	 * @param  stringToMerge String with values to merge.
+	 * @param  record        Record with values to merge into the string
+	 * @return               Returns the string with all merge fields replaced with values
+	 */
+	public static String replaceMergeFieldsWithValues (String stringToMerge, SObject record) {
+		return replaceMergeFieldsWithValues(stringToMerge, null, record);
+	}
+
+	/**
+	 * If we don't have the record, then we pass the Id so the class
+	 * can do the heavy work.
+	 * @param  stringToMerge String with values to merge.
+	 * @param  recordId      Id of the record which contains the values we need to replace.
+	 * @return               Returns the string with all merge fields replaced with values
+	 */
+	public static String replaceMergeFieldsWithValues (String stringToMerge, String recordId) {
+		return replaceMergeFieldsWithValues(stringToMerge, recordId, null);
+	}
+
+	/**
 	*   @author Ben Edwards (ben@edwards.nz)
 	*   @description Generate the string with the replaced values
 	*   @return Returns the string with all merge fields replaced with values
 	**/
-	public static String replaceMergeFieldsWithValues (String stringToMerge, String recordId) {
+	public static String replaceMergeFieldsWithValues (String stringToMerge, String recordId, SObject record) {
 		
 		// Get the object name based on the recordId
-		String objectName = ((Id) recordId).getSObjectType().getDescribe().getName();
+		String objectName;
+		if (recordId != null) {
+			recordId = ((Id) recordId).getSObjectType().getDescribe().getName();
+		}
+		else {
+			recordId = ((Id) record.Id).getSObjectType().getDescribe().getName();
+		}
 
 		// The pattern to match one. This accepts merge fields using {{ field_name }} syntax
 		Pattern thePattern = Pattern.compile('\\{\\{([^}]*)\\}\\}');
@@ -21,8 +51,15 @@ public class MergeFieldUtility {
 		// The matcher which returns the matched fields from the given string
 		Matcher theMatcher = thePattern.matcher(stringToMerge);
 
-		// Query for the SObject and all related fields
-		SObject theRecord = getRecord (thePattern, stringToMerge, objectName, recordId);
+		// Query for the SObject and all related fields, if the record wasn't passed already
+		SObject theRecord;
+
+		if (record == null) {
+			theRecord = getRecord (thePattern, stringToMerge, objectName, recordId);
+		}
+		else {
+			theRecord = record;
+		}
 		
 		// Iterate over each match
 		while (theMatcher.find()) {
